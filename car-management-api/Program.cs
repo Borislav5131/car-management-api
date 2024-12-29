@@ -20,6 +20,7 @@ builder.Services.AddCors(options =>
                         .AllowAnyHeader());
 });
 builder.Services.AddScoped<IGarageService, GarageService>();
+builder.Services.AddScoped<ICarService, CarService>();
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {

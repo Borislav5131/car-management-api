@@ -20,7 +20,5 @@
         public string LicensePlate { get; set; }
 
         public List<Garage> Garages { get; set; }
-
-        public List<Maintenance> Maintenances { get; set; }
     }
 }
