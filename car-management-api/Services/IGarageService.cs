@@ -1,9 +1,13 @@
 ﻿namespace car_management_api.Services
 {
-    using car_management_api.Models;
+    using car_management_api.Dtos;
 
     public interface IGarageService
     {
-        Task<List<Garage>> GetAllGarages(string? city);
+        Task<List<ResponseGarageDto>> GetAllGarages(string? city);
+        Task<ResponseGarageDto> GetGarageById(int id);
+        Task<ResponseGarageDto> UpdateGarage(int id, UpdateGarageDto garageDto);
+        Task<bool> DeleteGarage(int id);
+        Task<ResponseGarageDto> CreateGarage(CreateGarageDto garageDto);
     }
 }

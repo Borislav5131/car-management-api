@@ -14,7 +14,7 @@ builder.Services.AddDbContext<DatabasebContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
+    options.AddPolicy("AllowAll",
         builder => builder.WithOrigins("http://localhost:3000")
                         .AllowAnyMethod()
                         .AllowAnyHeader());
@@ -25,7 +25,7 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 {
     serverOptions.ListenLocalhost(8088, listenOptions =>
     {
-        listenOptions.UseHttps();
+        
     });
 });
 
@@ -39,17 +39,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseDeveloperExceptionPage();
-app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors("AllowReactApp");
 app.UseRouting();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
 
-app.Run("https://127.0.0.1:8088");
+app.Run("http://127.0.0.1:8088");

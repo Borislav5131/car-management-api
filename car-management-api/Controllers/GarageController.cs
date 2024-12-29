@@ -1,9 +1,11 @@
-﻿using car_management_api.Services;
+﻿using car_management_api.Dtos;
+using car_management_api.Services;
+using car_management_api.Validation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace car_management_api.Controllers
 {
-    [Route("/garages")]
+    [Route("garages")]
     [ApiController]
     public class GarageController : Controller
     {
@@ -21,10 +23,84 @@ namespace car_management_api.Controllers
 
             if (garages == null || garages.Count == 0)
             {
-                return NotFound("No garages found.");
+                return BadRequest("No garages found!");
             }
 
             return Ok(garages);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetGarageById(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid garage ID!");
+            }
+
+            var garage = await _garageService.GetGarageById(id);
+
+            if (garage == null)
+            {
+                return NotFound("No garage found!");
+            }
+
+            return Ok(garage);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateGarage(CreateGarageDto garageDto)
+        {
+            var validationErrors = GarageValidator.ValidateCreateGarageDto(garageDto);
+            if (validationErrors.Count > 0)
+            {
+                return BadRequest(new { message = "Validation failed!", errors = validationErrors });
+            }
+
+            var createdGarage = await _garageService.CreateGarage(garageDto);
+
+            if (createdGarage == null)
+            {
+                return BadRequest($"Garage not created!");
+            }
+
+            return Ok(createdGarage);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditGarage(int id, UpdateGarageDto garageDto)
+        {
+            var validationErrors = GarageValidator.ValidateUpdateGarageDto(garageDto);
+            if (validationErrors.Count > 0)
+            {
+                return BadRequest(new { message = "Validation failed!", errors = validationErrors });
+            }
+
+            var updatedGarage = await _garageService.UpdateGarage(id, garageDto);
+
+            if (updatedGarage == null)
+            {
+                return NotFound($"Garage with ID {id} not found!");
+            }
+
+            return Ok(updatedGarage);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteGarage(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid garage ID!");
+            }
+
+            var isDeleted = await _garageService.DeleteGarage(id);
+
+            if (!isDeleted)
+            {
+                return NotFound("Garage deleted unsuccessfully!");
+            }
+
+            return Ok("Garage deleted successfully!");
         }
     }
 }
