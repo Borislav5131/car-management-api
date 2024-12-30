@@ -21,6 +21,7 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddScoped<IGarageService, GarageService>();
 builder.Services.AddScoped<ICarService, CarService>();
+builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
