@@ -18,5 +18,7 @@
 
         [Required]
         public int Capacity { get; set; }
+
+        public List<Car> Cars { get; set; }
     }
 }

@@ -94,7 +94,15 @@
                 var garage = await _context.Garages.FirstOrDefaultAsync(g => g.Id == garageId);
                 if (garage != null)
                 {
-                    garages.Add(garage);
+                    if (garage.Capacity > 0)
+                    {
+                        garages.Add(garage);
+                        garage.Capacity -= 1;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
             }
 
@@ -128,7 +136,15 @@
                 var garage = await _context.Garages.FirstOrDefaultAsync(g => g.Id == garageId);
                 if (garage != null)
                 {
-                    garages.Add(garage);
+                    if (garage.Capacity > 0)
+                    {
+                        garages.Add(garage);
+                        garage.Capacity -= 1;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
             }
 
@@ -136,10 +152,25 @@
             car.Model = carDto.Model;
             car.LicensePlate = carDto.LicensePlate;
             car.ProductionYear = carDto.ProductionYear;
-            car.Garages = garages;
 
-            _context.Cars.Update(car);
-            await _context.SaveChangesAsync();
+            foreach (var garage in garages)
+            {
+                if (!car.Garages.Any(g => g.Id == garage.Id))
+                {
+                    car.Garages.Add(garage);
+                }
+            }
+
+            try
+            {
+                _context.Cars.Update(car);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
 
             return await GetCarById(car.Id);
         }
@@ -156,6 +187,7 @@
             foreach (var garage in car.Garages.ToList())
             {
                 car.Garages.Remove(garage);
+                garage.Capacity += 1;
             }
 
             _context.Cars.Remove(car);

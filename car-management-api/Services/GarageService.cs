@@ -71,7 +71,9 @@
 
         public async Task<ResponseGarageDto> UpdateGarage(int id, UpdateGarageDto garageDto)
         {
-            var garage = await _context.Garages.FirstOrDefaultAsync(g => g.Id == id);
+            var garage = await _context.Garages
+                .Include(g=>g.Cars)
+                .FirstOrDefaultAsync(g => g.Id == id);
 
             if (garage == null)
             {
@@ -81,7 +83,7 @@
             garage.Name = garageDto.Name ?? garage.Name;
             garage.City = garageDto.City ?? garage.City;
             garage.Location = garageDto.Location ?? garage.Location;
-            garage.Capacity = garageDto.Capacity != garage.Capacity ? garageDto.Capacity : garage.Capacity;
+            garage.Capacity = garageDto.Capacity != garage.Capacity ? garageDto.Capacity - garage.Cars.Count : garage.Capacity - garage.Cars.Count;
 
             _context.Garages.Update(garage);
             await _context.SaveChangesAsync();
@@ -102,6 +104,24 @@
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<GarageDailyAvailabilityReportDto> GetDailyAvailabilityReport(int garageId, string startDate, string endDate)
+        {
+            var garage = await _context.Garages.FirstOrDefaultAsync(g => g.Id == garageId);
+
+            if (garage == null)
+            {
+                return null;
+            }
+
+            var responseReport = new GarageDailyAvailabilityReportDto
+            {
+                AvailableCapacity = garage.Capacity,
+
+            };
+
+            return responseReport;
         }
     }
 }

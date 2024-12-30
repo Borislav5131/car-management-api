@@ -102,5 +102,24 @@ namespace car_management_api.Controllers
 
             return Ok("Garage deleted successfully!");
         }
+
+        [HttpGet("dailyAvailabilityReport")]
+        public async Task<IActionResult> GetReport(int garageId, string startDate, string endDate)
+        {
+            var validationErrors = GarageValidator.ValidateDatesReport(startDate, endDate);
+            if (validationErrors.Count > 0)
+            {
+                return BadRequest(new { message = "Validation failed!", errors = validationErrors });
+            }
+
+            var report = await _garageService.GetDailyAvailabilityReport(garageId, startDate, endDate);
+
+            if (report == null)
+            {
+                return BadRequest("Can't get report!");
+            }
+
+            return Ok(report);
+        }
     }
 }
