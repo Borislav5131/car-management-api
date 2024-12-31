@@ -148,5 +148,62 @@
 
             return true;
         }
+
+        public async Task<List<MonthlyRequestsReportDto>> GetMonthlyRequestsReport(int garageId, string startDate, string endDate)
+        {
+            var garage = await _context.Garages.FirstOrDefaultAsync(g => g.Id == garageId);
+
+            if (garage == null)
+            {
+                return null;
+            }
+
+            DateTime startDateTime = DateTime.ParseExact(startDate, "yyyy-MM", null);
+            DateTime endDateTime = DateTime.ParseExact(endDate, "yyyy-MM", null).AddMonths(1).AddDays(-1);
+
+            var results = await _context.Maintenances
+                .Where(m => m.GarageId == garageId &&
+                            m.ScheduledDate >= startDateTime &&
+                            m.ScheduledDate <= endDateTime)
+                .GroupBy(m => new
+                { 
+                    Year = m.ScheduledDate.Year,
+                    Month = m.ScheduledDate.Month
+                })
+                .Select(g => new
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Requests = g.Count()
+                })
+                .OrderBy(r => r.Year)
+                .ThenBy(r => r.Month)
+                .ToListAsync();
+
+            
+            var reports = new List<MonthlyRequestsReportDto>();
+            DateTime currentMonth = startDateTime;
+
+            while (currentMonth <= endDateTime)
+            {
+                var result = results.FirstOrDefault(r => r.Year == currentMonth.Year && r.Month == currentMonth.Month);
+
+                reports.Add(new MonthlyRequestsReportDto
+                {
+                    YearMonth = new YearMonth
+                    {
+                        Year = currentMonth.Year,
+                        Month = currentMonth.ToString("MMMM").ToUpper(),
+                        LeapYear = DateTime.IsLeapYear(currentMonth.Year),
+                        MonthValue = currentMonth.Month
+                    },
+                    Requests = result?.Requests ?? 0
+                });
+
+                currentMonth = currentMonth.AddMonths(1);
+            }
+
+            return reports;
+        }
     }
 }

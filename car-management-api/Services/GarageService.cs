@@ -106,7 +106,7 @@
             return true;
         }
 
-        public async Task<GarageDailyAvailabilityReportDto> GetDailyAvailabilityReport(int garageId, string startDate, string endDate)
+        public async Task<List<GarageDailyAvailabilityReportDto>> GetDailyAvailabilityReport(int garageId, string startDate, string endDate)
         {
             var garage = await _context.Garages.FirstOrDefaultAsync(g => g.Id == garageId);
 
@@ -115,13 +115,30 @@
                 return null;
             }
 
-            var responseReport = new GarageDailyAvailabilityReportDto
+            DateTime startDateTime = DateTime.Parse(startDate);
+            DateTime endDateTime = DateTime.Parse(endDate);
+
+            var results = await _context.Maintenances
+                .Where(m => m.GarageId == garageId &&
+                            m.ScheduledDate.Date >= startDateTime.Date &&
+                            m.ScheduledDate.Date <= endDateTime.Date)
+                .GroupBy(m => m.ScheduledDate.Date)
+                .Select(g => new
+                {
+                    ReportDate = g.Key,
+                    Requests = g.Count()
+                })
+                .OrderBy(r => r.ReportDate)
+                .ToListAsync();
+
+            var responseReports = results.Select( result => new GarageDailyAvailabilityReportDto
             {
-                AvailableCapacity = garage.Capacity,
+                Date = result.ReportDate.ToString("yyyy-MM"),
+                Requests = result.Requests,
+                AvailableCapacity = garage.Capacity - result.Requests,
+            }).ToList();
 
-            };
-
-            return responseReport;
+            return responseReports;
         }
     }
 }

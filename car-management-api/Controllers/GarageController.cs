@@ -1,4 +1,5 @@
 ﻿using car_management_api.Dtos;
+using car_management_api.Models;
 using car_management_api.Services;
 using car_management_api.Validation;
 using Microsoft.AspNetCore.Mvc;
@@ -112,14 +113,14 @@ namespace car_management_api.Controllers
                 return BadRequest(new { message = "Validation failed!", errors = validationErrors });
             }
 
-            var report = await _garageService.GetDailyAvailabilityReport(garageId, startDate, endDate);
+            var reports = await _garageService.GetDailyAvailabilityReport(garageId, startDate, endDate);
 
-            if (report == null)
+            if (reports == null || reports.Count == 0)
             {
-                return BadRequest("Can't get report!");
+                return BadRequest("Can't get reports!");
             }
 
-            return Ok(report);
+            return Ok(reports);
         }
     }
 }

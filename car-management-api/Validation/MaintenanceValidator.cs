@@ -62,5 +62,26 @@
 
             return errors;
         }
+
+        public static List<string> ValidateMonthReport(string startMonth, string endMonth)
+        {
+            var errors = new List<string>();
+
+            DateTime startDateTime;
+            bool isValidStartDate = DateTime.TryParseExact(startMonth, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out startDateTime);
+            if (!isValidStartDate)
+            {
+                errors.Add("Start Month is not valid!");
+            }
+
+            DateTime endDateTime;
+            bool isValidEndDate = DateTime.TryParseExact(endMonth, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out endDateTime);
+            if (!isValidEndDate)
+            {
+                errors.Add("End Month is not valid!");
+            }
+
+            return errors;
+        }
     }
 }

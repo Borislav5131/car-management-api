@@ -9,5 +9,6 @@
         Task<ResponseMaintenanceDto> UpdateMaintenance(int id, UpdateMaintenanceDto maintenanceDto);
         Task<bool> DeleteMaintenance(int id);
         Task<ResponseMaintenanceDto> CreateMaintenance(CreateMaintenanceDto maintenanceDto);
+        Task<List<MonthlyRequestsReportDto>> GetMonthlyRequestsReport(int garageId, string startDate, string endDate);
     }
 }

@@ -102,5 +102,24 @@
 
             return Ok("Maintenance deleted successfully!");
         }
+
+        [HttpGet("monthlyRequestsReport")]
+        public async Task<IActionResult> GetReport(int garageId, string startMonth, string endMonth)
+        {
+            var validationErrors = MaintenanceValidator.ValidateMonthReport(startMonth, endMonth);
+            if (validationErrors.Count > 0)
+            {
+                return BadRequest(new { message = "Validation failed!", errors = validationErrors });
+            }
+
+            var reports = await _maintenanceService.GetMonthlyRequestsReport(garageId, startMonth, endMonth);
+
+            if (reports == null || reports.Count == 0)
+            {
+                return BadRequest("Can't get reports!");
+            }
+
+            return Ok(reports);
+        }
     }
 }

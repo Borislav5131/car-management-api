@@ -9,6 +9,6 @@
         Task<ResponseGarageDto> UpdateGarage(int id, UpdateGarageDto garageDto);
         Task<bool> DeleteGarage(int id);
         Task<ResponseGarageDto> CreateGarage(CreateGarageDto garageDto);
-        Task<GarageDailyAvailabilityReportDto> GetDailyAvailabilityReport(int garageId, string startDate, string endDate);
+        Task<List<GarageDailyAvailabilityReportDto>> GetDailyAvailabilityReport(int garageId, string startDate, string endDate);
     }
 }
