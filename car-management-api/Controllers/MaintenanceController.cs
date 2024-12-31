@@ -21,11 +21,6 @@
         {
             var maintenances = await _maintenanceService.GetAllMaintenances(carId, garageId, startDate, endDate);
 
-            if (maintenances == null || maintenances.Count == 0) 
-            {
-                return BadRequest("No maintenances found!");
-            }
-
             return Ok(maintenances);
         }
 
@@ -113,11 +108,6 @@
             }
 
             var reports = await _maintenanceService.GetMonthlyRequestsReport(garageId, startMonth, endMonth);
-
-            if (reports == null || reports.Count == 0)
-            {
-                return BadRequest("Can't get reports!");
-            }
 
             return Ok(reports);
         }

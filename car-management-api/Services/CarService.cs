@@ -123,14 +123,14 @@
 
         public async Task<ResponseCarDto> UpdateCar(int id, UpdateCarDto carDto)
         {
-            var car = await _context.Cars.FirstOrDefaultAsync(c => c.Id == id);
+            var car = await _context.Cars.Include(c => c.Garages).FirstOrDefaultAsync(c => c.Id == id);
 
             if (car == null)
             {
                 return null;
             }
 
-            var garages = new List<Garage>();
+            var newGarages = new List<Garage>();
             foreach (var garageId in carDto.GarageIds)
             {
                 var garage = await _context.Garages.FirstOrDefaultAsync(g => g.Id == garageId);
@@ -138,8 +138,7 @@
                 {
                     if (garage.Capacity > 0)
                     {
-                        garages.Add(garage);
-                        garage.Capacity -= 1;
+                        newGarages.Add(garage);
                     }
                     else
                     {
@@ -148,29 +147,35 @@
                 }
             }
 
+            foreach (var oldGarage in car.Garages)
+            {
+                if (!carDto.GarageIds.Contains(oldGarage.Id))
+                {
+                    oldGarage.Capacity += 1;
+                }
+            }
+
+            foreach (var newGarage in newGarages)
+            {
+                if (!car.Garages.Any(g => g.Id == newGarage.Id))
+                {
+                    newGarage.Capacity -= 1;
+                }
+            }
+
+            car.Garages.Clear();
+            foreach (var newGarage in newGarages)
+            {
+                car.Garages.Add(newGarage);
+            }
+
             car.Make = carDto.Make;
             car.Model = carDto.Model;
             car.LicensePlate = carDto.LicensePlate;
             car.ProductionYear = carDto.ProductionYear;
 
-            foreach (var garage in garages)
-            {
-                if (!car.Garages.Any(g => g.Id == garage.Id))
-                {
-                    car.Garages.Add(garage);
-                }
-            }
-
-            try
-            {
-                _context.Cars.Update(car);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
+            _context.Cars.Update(car);
+            await _context.SaveChangesAsync();
 
             return await GetCarById(car.Id);
         }

@@ -22,11 +22,6 @@ namespace car_management_api.Controllers
         {
             var garages = await _garageService.GetAllGarages(city);
 
-            if (garages == null || garages.Count == 0)
-            {
-                return BadRequest("No garages found!");
-            }
-
             return Ok(garages);
         }
 
@@ -114,11 +109,6 @@ namespace car_management_api.Controllers
             }
 
             var reports = await _garageService.GetDailyAvailabilityReport(garageId, startDate, endDate);
-
-            if (reports == null || reports.Count == 0)
-            {
-                return BadRequest("Can't get reports!");
-            }
 
             return Ok(reports);
         }

@@ -21,11 +21,6 @@
         {
             var cars = await _carService.GetAllCars(carMake, garageId, fromYear, toYear);
 
-            if (cars == null || cars.Count == 0)
-            {
-                return BadRequest("No cars found!");
-            }
-
             return Ok(cars);
         }
 
